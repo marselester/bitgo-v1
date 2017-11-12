@@ -61,6 +61,7 @@ func main() {
 	}()
 
 	err := client.Wallet.Unspents(ctx, *walletID, params, func(list bitgo.UnspentList) {
+		log.Printf("utxo: fetched %d/%d unspents", list.Start+list.Count, list.Total)
 		for _, utxo := range list.Unspents {
 			fmt.Printf("%0.8f\n", bitgo.ToBitcoins(utxo.Value))
 		}
