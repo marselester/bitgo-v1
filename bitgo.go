@@ -6,6 +6,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"net/http"
 	"net/url"
 )
@@ -110,14 +111,35 @@ func (c *Client) Do(req *http.Request, v interface{}) (*http.Response, error) {
 	}
 	defer resp.Body.Close()
 
-	if resp.StatusCode != http.StatusOK {
-		e := Error{HTTPStatusCode: resp.StatusCode}
-		if err = json.NewDecoder(resp.Body).Decode(&e); err != nil {
-			e.Message = "server error"
-		}
-		return resp, e
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return resp, err
 	}
 
-	err = json.NewDecoder(resp.Body).Decode(v)
-	return resp, err
+	if resp.StatusCode == http.StatusOK {
+		err = json.Unmarshal(body, v)
+		return resp, err
+	}
+
+	e := Error{
+		HTTPStatusCode: resp.StatusCode,
+		Body:           string(body),
+	}
+	_ = json.Unmarshal(body, &e)
+
+	switch resp.StatusCode {
+	case http.StatusAccepted:
+		e.Type = ErrorTypeRequiresApproval
+	case http.StatusBadRequest:
+		e.Type = ErrorTypeInvalidRequest
+	case http.StatusUnauthorized, http.StatusForbidden:
+		e.Type = ErrorTypeAuthentication
+	case http.StatusNotFound:
+		e.Type = ErrorTypeNotFound
+	case http.StatusTooManyRequests:
+		e.Type = ErrorTypeRateLimit
+	default:
+		e.Type = ErrorTypeAPI
+	}
+	return resp, e
 }
