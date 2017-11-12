@@ -21,6 +21,11 @@ func ToBitcoins(amount int64) float64 {
 	return float64(amount) * Satoshi
 }
 
+// ToSatoshis converts bitcoins to satoshis.
+func ToSatoshis(amount float64) int64 {
+	return int64(amount / Satoshi)
+}
+
 // Unspent is an unspent transaction output (UTXO).
 type Unspent struct {
 	// The hash of the unspent input.
