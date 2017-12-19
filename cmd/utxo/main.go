@@ -10,6 +10,7 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
+	"time"
 
 	"github.com/marselester/bitgo-v1"
 )
@@ -23,6 +24,7 @@ func main() {
 	minSize := flag.String("min-size", "", "Only include unspents that are at least this many satoshis.")
 	limit := flag.String("limit", "", "Max number of results to return in a single call (default=100, max=250).")
 	skip := flag.String("skip", "", "The starting index number to list from. Default is 0.")
+	waitSeconds := flag.Int("wait", 15, "How many seconds to wait after failed download attempt.")
 	flag.Parse()
 
 	client := bitgo.New(
@@ -60,13 +62,30 @@ func main() {
 		cancel()
 	}()
 
-	err := client.Wallet.Unspents(ctx, *walletID, params, func(list bitgo.UnspentList) {
-		log.Printf("utxo: fetched %d/%d unspents", list.Start+list.Count, list.Total)
-		for _, utxo := range list.Unspents {
-			fmt.Printf("%0.8f\n", bitgo.ToBitcoins(utxo.Value))
+	downloaded := 0
+	for {
+		err := client.Wallet.Unspents(ctx, *walletID, params, func(list bitgo.UnspentList) {
+			downloaded = list.Start + list.Count
+			log.Printf("utxo: fetched %d/%d unspents", downloaded, list.Total)
+
+			for _, utxo := range list.Unspents {
+				fmt.Printf("%0.8f\n", bitgo.ToBitcoins(utxo.Value))
+			}
+		})
+		// Stop when we downloaded everything without errors.
+		if err == nil {
+			break
 		}
-	})
-	if err != nil {
-		log.Fatalf("utxo: failed to list unspents: %v", err)
+
+		if apiErr, ok := err.(bitgo.Error); ok {
+			log.Printf("utxo: failed to list unspents, %d: %v", apiErr.HTTPStatusCode, apiErr)
+		} else {
+			log.Printf("utxo: failed to list unspents: %v", err)
+		}
+
+		// We shall wait a bit and then try again.
+		log.Printf("utxo: retrying in %d seconds...", *waitSeconds)
+		time.Sleep(time.Duration(*waitSeconds) * time.Second)
+		params.Set("skip", fmt.Sprintf("%d", downloaded))
 	}
 }
