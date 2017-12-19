@@ -19,9 +19,9 @@ func main() {
 	baseURL := flag.String("host", "http://0.0.0.0:3080", "BitGo API server base URL.")
 	accessToken := flag.String("token", "", "BitGo access token.")
 	walletID := flag.String("wallet", "", "BitGo wallet ID (BTC address).")
-	target := flag.String("target", "", "The API will attempt to return enough unspents to accumulate to at least this amount (in satoshis).")
+	target := flag.Float64("target", 0, "The API will attempt to return enough unspents to accumulate to at least this amount of bitcoins.")
 	minConfirms := flag.String("min-confirms", "", "Only include unspents with at least this many confirmations.")
-	minSize := flag.String("min-size", "", "Only include unspents that are at least this many satoshis.")
+	minSize := flag.Float64("min-size", 0, "Only include unspents that are at least this many bitcoins.")
 	limit := flag.String("limit", "", "Max number of results to return in a single call (default=100, max=250).")
 	skip := flag.String("skip", "", "The starting index number to list from. Default is 0.")
 	waitSeconds := flag.Int("wait", 15, "How many seconds to wait after failed download attempt.")
@@ -33,14 +33,14 @@ func main() {
 	)
 
 	params := url.Values{}
-	if *target != "" {
-		params.Set("target", *target)
+	if *target > 0 {
+		params.Set("target", fmt.Sprintf("%d", bitgo.ToSatoshis(*target)))
 	}
 	if *minConfirms != "" {
 		params.Set("minConfirms", *minConfirms)
 	}
-	if *minSize != "" {
-		params.Set("minSize", *minSize)
+	if *minSize > 0 {
+		params.Set("minSize", fmt.Sprintf("%d", bitgo.ToSatoshis(*minSize)))
 	}
 	if *limit != "" {
 		params.Set("limit", *limit)
