@@ -24,6 +24,7 @@ func main() {
 	minSize := flag.Float64("min-size", 0, "Only include unspents that are at least this many bitcoins.")
 	limit := flag.String("limit", "", "Max number of results to return in a single call (default=100, max=250).")
 	skip := flag.String("skip", "", "The starting index number to list from. Default is 0.")
+	segwit := flag.Bool("segwit", true, "Include SegWit unspents.")
 	waitSeconds := flag.Int("wait", 15, "How many seconds to wait after failed download attempt.")
 	flag.Parse()
 
@@ -47,6 +48,11 @@ func main() {
 	}
 	if *skip != "" {
 		params.Set("skip", *skip)
+	}
+	if *segwit {
+		params.Set("segwit", "true")
+	} else {
+		params.Set("segwit", "false")
 	}
 
 	ctx, cancel := context.WithCancel(context.Background())
