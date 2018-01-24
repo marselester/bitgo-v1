@@ -14,7 +14,7 @@ client := bitgo.New(
 )
 params := url.Values{}
 params.Set("limit", "250")
-err := client.Wallet.Unspents(ctx, "2N91XzUxLrSkfDMaRcwQhe9DauhZMhUoxGr", params, func(list bitgo.UnspentList) {
+err := client.Wallet.Unspents(ctx, "2N91XzUxLrSkfDMaRcwQhe9DauhZMhUoxGr", params, func(list *bitgo.UnspentList) {
     for _, utxo := range list.Unspents {
         fmt.Printf("%0.8f\n", bitgo.ToBitcoins(utxo.Value))
     }
@@ -42,4 +42,10 @@ $ cat unspents.txt | sort | uniq -c | sort -n -r
    3 0.00000001
    2 0.00000562
    1 0.00000117
+```
+
+## Testing
+
+```sh
+$ go test -bench=. -benchmem
 ```
