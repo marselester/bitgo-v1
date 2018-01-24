@@ -28,6 +28,8 @@ func ToSatoshis(amount float64) int64 {
 
 // Unspent is an unspent transaction output (UTXO).
 type Unspent struct {
+	// The address of the unspent input.
+	Address string `json:"address"`
 	// The hash of the unspent input.
 	TxHash string `json:"tx_hash"`
 	// The index of the unspent input from tx_hash.
@@ -69,16 +71,15 @@ type UnspentList struct {
 // It invokes f for each page of results.
 // You can filter unspents using query parameters as described in the docs
 // https://bitgo.github.io/bitgo-docs/#list-wallet-unspents.
-func (s *walletService) Unspents(ctx context.Context, walletID string, params url.Values, f func(UnspentList)) error {
+func (s *walletService) Unspents(ctx context.Context, walletID string, queryParams url.Values, f func(*UnspentList)) error {
 	path := fmt.Sprintf("wallet/%s/unspents", walletID)
-
-	skip, err := strconv.Atoi(params.Get("skip"))
+	skip, err := strconv.Atoi(queryParams.Get("skip"))
 	if err != nil {
 		skip = 0
 	}
 
 	for {
-		req, err := s.client.NewRequest(ctx, http.MethodGet, path, params, nil)
+		req, err := s.client.NewRequest(ctx, http.MethodGet, path, queryParams, nil)
 		if err != nil {
 			return err
 		}
@@ -93,14 +94,14 @@ func (s *walletService) Unspents(ctx context.Context, walletID string, params ur
 			}
 			return err
 		}
-		f(v)
+		f(&v)
 
 		skip = skip + v.Count
 		stopPagination := skip >= v.Total
 		if stopPagination {
 			break
 		}
-		params.Set("skip", strconv.Itoa(skip))
+		queryParams.Set("skip", strconv.Itoa(skip))
 	}
 
 	return nil

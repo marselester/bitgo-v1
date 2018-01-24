@@ -70,7 +70,7 @@ func main() {
 
 	downloaded := 0
 	for {
-		err := client.Wallet.Unspents(ctx, *walletID, params, func(list bitgo.UnspentList) {
+		err := client.Wallet.Unspents(ctx, *walletID, params, func(list *bitgo.UnspentList) {
 			downloaded = list.Start + list.Count
 			log.Printf("utxo: fetched %d/%d unspents", downloaded, list.Total)
 
