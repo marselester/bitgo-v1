@@ -12,7 +12,7 @@ import (
 )
 
 func TestUnspents(t *testing.T) {
-	filename := filepath.Join("test-fixtures", "unspents.json")
+	filename := filepath.Join("testdata", "unspents.json")
 	content, err := ioutil.ReadFile(filename)
 	if err != nil {
 		t.Fatal(err)
@@ -50,7 +50,7 @@ func TestUnspents(t *testing.T) {
 }
 
 func BenchmarkUnspents(b *testing.B) {
-	filename := filepath.Join("test-fixtures", "unspents.json")
+	filename := filepath.Join("testdata", "unspents.json")
 	content, err := ioutil.ReadFile(filename)
 	if err != nil {
 		b.Fatal(err)
