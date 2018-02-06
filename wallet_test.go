@@ -35,7 +35,7 @@ func TestUnspents(t *testing.T) {
 	}))
 	defer srv.Close()
 
-	client := bitgo.New(
+	client := bitgo.NewClient(
 		bitgo.WithBaseURL(srv.URL),
 	)
 	err = client.Wallet.Unspents(context.Background(), "", nil, func(list *bitgo.UnspentList) {
@@ -61,7 +61,7 @@ func BenchmarkUnspents(b *testing.B) {
 	}))
 	defer srv.Close()
 
-	client := bitgo.New(
+	client := bitgo.NewClient(
 		bitgo.WithBaseURL(srv.URL),
 	)
 	f := func(list *bitgo.UnspentList) {}

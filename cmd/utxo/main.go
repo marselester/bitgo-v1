@@ -28,7 +28,7 @@ func main() {
 	waitSeconds := flag.Int("wait", 15, "How many seconds to wait after failed download attempt.")
 	flag.Parse()
 
-	client := bitgo.New(
+	client := bitgo.NewClient(
 		bitgo.WithBaseURL(*baseURL),
 		bitgo.WithAccesToken(*accessToken),
 	)

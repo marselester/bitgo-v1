@@ -9,12 +9,12 @@ Gets a list of unspent input transactions for a wallet. For example, we want to 
 print amounts in BTC. You can stop pagination by cancelling a `ctx` context.
 
 ```go
-client := bitgo.New(
+c := bitgo.NewClient(
     bitgo.WithAccesToken("swordfish"),
 )
 params := url.Values{}
 params.Set("limit", "250")
-err := client.Wallet.Unspents(ctx, "2N91XzUxLrSkfDMaRcwQhe9DauhZMhUoxGr", params, func(list *bitgo.UnspentList) {
+err := c.Wallet.Unspents(ctx, "2N91XzUxLrSkfDMaRcwQhe9DauhZMhUoxGr", params, func(list *bitgo.UnspentList) {
     for _, utxo := range list.Unspents {
         fmt.Printf("%0.8f\n", bitgo.ToBitcoins(utxo.Value))
     }

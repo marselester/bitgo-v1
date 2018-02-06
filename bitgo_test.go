@@ -85,7 +85,7 @@ func TestErrorResponse(t *testing.T) {
 			}))
 			defer srv.Close()
 
-			client := bitgo.New(
+			client := bitgo.NewClient(
 				bitgo.WithBaseURL(srv.URL),
 			)
 			err := client.Wallet.Unspents(context.Background(), "", nil, nil)
