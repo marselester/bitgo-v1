@@ -1,7 +1,6 @@
 package bitgo_test
 
 import (
-	"errors"
 	"testing"
 
 	"github.com/marselester/bitgo-v1"
@@ -9,7 +8,7 @@ import (
 
 func TestIsUnauthorized(t *testing.T) {
 	tests := []struct {
-		err  error
+		err  bitgo.Error
 		want bool
 	}{
 		{bitgo.Error{Type: bitgo.ErrorTypeAuthentication}, true},
@@ -17,11 +16,9 @@ func TestIsUnauthorized(t *testing.T) {
 		{bitgo.Error{Type: bitgo.ErrorTypeRateLimit}, false},
 		{bitgo.Error{Type: bitgo.ErrorTypeAPI}, false},
 		{bitgo.Error{}, false},
-		{errors.New(""), false},
-		{nil, false},
 	}
 	for _, test := range tests {
-		got := bitgo.IsUnauthorized(test.err)
+		got := test.err.IsUnauthorized()
 		if got != test.want {
 			t.Errorf("IsUnauthorized(%#v) = %v, want %v", test.err, got, test.want)
 		}

@@ -60,13 +60,3 @@ func (e Error) IsRateLimited() bool {
 func (e Error) IsTemporary() bool {
 	return e.Type == ErrorTypeAPI
 }
-
-type unauthorized interface {
-	IsUnauthorized() bool
-}
-
-// IsUnauthorized returns true if err caused by authentication problem.
-func IsUnauthorized(err error) bool {
-	e, ok := err.(unauthorized)
-	return ok && e.IsUnauthorized()
-}

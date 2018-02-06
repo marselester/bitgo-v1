@@ -44,6 +44,40 @@ $ cat unspents.txt | sort | uniq -c | sort -n -r
    1 0.00000117
 ```
 
+## Error Handling
+
+Dave Cheney recommends
+[asserting errors for behaviour](https://dave.cheney.net/2016/04/27/dont-just-check-errors-handle-them-gracefully), not type.
+
+```go
+package main
+
+import (
+	"fmt"
+
+	"github.com/marselester/bitgo-v1"
+	"github.com/pkg/errors"
+)
+
+// IsUnauthorized returns true if err caused by authentication problem.
+func IsUnauthorized(err error) bool {
+	e, ok := errors.Cause(err).(interface {
+		IsUnauthorized() bool
+	})
+	return ok && e.IsUnauthorized()
+}
+
+func main() {
+	err := bitgo.Error{Type: bitgo.ErrorTypeAuthentication}
+	fmt.Println(IsUnauthorized(err))
+	fmt.Println(IsUnauthorized(fmt.Errorf("")))
+	fmt.Println(IsUnauthorized(nil))
+	// Output: true
+	// false
+	// false
+}
+```
+
 ## Testing
 
 ```sh
