@@ -78,8 +78,9 @@ func main() {
 				fmt.Printf("%0.8f\n", bitgo.ToBitcoins(utxo.Value))
 			}
 		})
-		// Stop when we downloaded everything without errors.
-		if err == nil {
+		// Stop when we downloaded everything without errors or
+		// when a context was cancelled (user hit Ctrl+C).
+		if err == nil || ctx.Err() != nil {
 			break
 		}
 

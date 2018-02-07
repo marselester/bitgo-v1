@@ -87,11 +87,6 @@ func (s *walletService) Unspents(ctx context.Context, walletID string, queryPara
 		v := UnspentList{}
 		_, err = s.client.Do(req, &v)
 		if err != nil {
-			// We don't want to return context cancellation error when
-			// a user decided to stop listing unspents.
-			if ctx.Err() != nil {
-				return nil
-			}
 			return err
 		}
 		f(&v)
