@@ -2,6 +2,7 @@
 
 [![Documentation](https://godoc.org/github.com/marselester/bitgo-v1?status.svg)](https://godoc.org/github.com/marselester/bitgo-v1)
 [![Go Report Card](https://goreportcard.com/badge/github.com/marselester/bitgo-v1)](https://goreportcard.com/report/github.com/marselester/bitgo-v1)
+[![Travis CI](https://travis-ci.org/marselester/bitgo-v1.png)](https://travis-ci.org/marselester/bitgo-v1)
 
 This is unofficial API client. There are no plans to implement all resources.
 
