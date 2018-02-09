@@ -28,6 +28,18 @@ func main() {
 	waitSeconds := flag.Int("wait", 15, "How many seconds to wait after failed download attempt.")
 	flag.Parse()
 
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+	// Listen to Ctrl+C and kill/killall to gracefully stop listing unspents.
+	go func() {
+		sigchan := make(chan os.Signal, 1)
+		signal.Notify(sigchan, syscall.SIGINT, syscall.SIGTERM)
+		<-sigchan
+
+		log.Print("utxo: stopping...")
+		cancel()
+	}()
+
 	client := bitgo.NewClient(
 		bitgo.WithBaseURL(*baseURL),
 		bitgo.WithAccesToken(*accessToken),
@@ -54,19 +66,6 @@ func main() {
 	} else {
 		params.Set("segwit", "false")
 	}
-
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
-
-	// Listen to Ctrl+C and kill/killall to gracefully stop listing unspents.
-	go func() {
-		sigchan := make(chan os.Signal, 1)
-		signal.Notify(sigchan, syscall.SIGINT, syscall.SIGTERM)
-		<-sigchan
-
-		log.Print("utxo: stopping...")
-		cancel()
-	}()
 
 	downloaded := 0
 	for {
