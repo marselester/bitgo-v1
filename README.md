@@ -1,5 +1,8 @@
 # Go client for [BitGo.com API v1](https://bitgo.github.io/bitgo-docs/)
 
+[![Documentation](https://godoc.org/github.com/marselester/bitgo-v1?status.svg)](https://godoc.org/github.com/marselester/bitgo-v1)
+[![Go Report Card](https://goreportcard.com/badge/github.com/marselester/bitgo-v1)](https://goreportcard.com/report/github.com/marselester/bitgo-v1)
+
 This is unofficial API client. There are no plans to implement all resources.
 
 ## [List Wallet Unspents](https://bitgo.github.io/bitgo-docs/#list-wallet-unspents)
@@ -76,10 +79,4 @@ func main() {
 	// false
 	// false
 }
-```
-
-## Testing
-
-```sh
-$ go test -bench=. -benchmem
 ```
