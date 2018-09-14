@@ -48,6 +48,36 @@ $ cat unspents.txt | sort | uniq -c | sort -n -r
    1 0.00000117
 ```
 
+## [Consolidate Wallet Unspents](https://bitgo.github.io/bitgo-docs/#consolidate-unspents)
+
+This API call will consolidate bitcoins of `2NB5G2jmqSswk7C427ZiHuwuAt1GPs5WeGa` wallet using max `0.001` BTC unspents
+with 1000 satoshis/kilobyte fee rate. You can stop consolidation by cancelling a `ctx` context.
+
+```go
+c := bitgo.NewClient(
+	bitgo.WithAccesToken("swordfish"),
+)
+tt, err := c.Wallet.Consolidate(ctx, "2NB5G2jmqSswk7C427ZiHuwuAt1GPs5WeGa", &bitgo.WalletConsolidateParams{
+	WalletPassphrase: "root",
+	MaxValue:         100000,
+	FeeRate:          1000,
+})
+if err != nil {
+	log.Fatalf("Failed to coalesce unspents: %v", err)
+}
+for _, tx := range tt {
+	fmt.Printf("Consolidated transaction ID: %s", tx.TxID)
+}
+```
+
+There is a CLI program to consolidate unspensts of a wallet.
+
+```sh
+$ go build ./cmd/consolidate/
+$ ./consolidate -token=swordfish -wallet=2NB5G2jmqSswk7C427ZiHuwuAt1GPs5WeGa -passphrase=root -max-value=0.001 -fee-rate=1000
+50430eeffdd1272ff39d0d3667cbc8e60de0a8ea6bb118e6236e0964389e6d19
+```
+
 ## Error Handling
 
 Dave Cheney recommends
@@ -80,4 +110,13 @@ func main() {
 	// false
 	// false
 }
+```
+
+## Testing
+
+Use [debug](https://dave.cheney.net/2014/09/28/using-build-to-switch-between-debug-and-release) tag
+to enable API response logging.
+
+```sh
+$ go test -tags debug
 ```

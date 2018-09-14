@@ -101,3 +101,47 @@ func (s *walletService) Unspents(ctx context.Context, walletID string, queryPara
 
 	return nil
 }
+
+// TxInfo is a response we get from consolidateunspents API endpoint.
+type TxInfo struct {
+	// TxID is an id of the transaction.
+	TxID string `json:"hash"`
+	// Tx is the serialized transaction.
+	Tx string `json:"tx"`
+	// Status if the transaction was accepted.
+	Status string `json:"status"`
+	// Transaction fee in satoshis.
+	Fee int64 `json:"fee"`
+}
+
+// WalletConsolidateParams represents API parameters used when coalescing UTXOs.
+// For more details, see https://bitgo.github.io/bitgo-docs/#consolidate-unspents.
+type WalletConsolidateParams struct {
+	// Number of outputs created by the consolidation transaction (defaults to 1).
+	NumUnspentsToMake int `json:"target,omitempty"`
+	// Number of unspents to select (defaults to 85).
+	Limit int `json:"maxInputCountPerConsolidation,omitempty"`
+	// The required number of confirmations for each transaction input.
+	MinConfirms int `json:"minConfirms,omitempty"`
+	// Passphrase to decrypt the wallet's private key.
+	WalletPassphrase string `json:"walletPassphrase,omitempty"`
+	// Ignore unspents smaller than this amount of satoshis.
+	MinValue int64 `json:"minSize,omitempty"`
+	// Ignore unspents larger than this amount of satoshis.
+	MaxValue int64 `json:"maxSize,omitempty"`
+	// The desired fee rate for the transaction in satoshis/kilobyte.
+	FeeRate int `json:"feeRate,omitempty"`
+}
+
+// Consolidate coalesces UTXOs currently held in a wallet to a smaller number.
+func (s *walletService) Consolidate(ctx context.Context, walletID string, bodyParams *WalletConsolidateParams) ([]TxInfo, error) {
+	path := fmt.Sprintf("wallet/%s/consolidateunspents", walletID)
+	req, err := s.client.NewRequest(ctx, http.MethodPut, path, nil, bodyParams)
+	if err != nil {
+		return nil, err
+	}
+
+	var tt []TxInfo
+	_, err = s.client.Do(req, &tt)
+	return tt, err
+}

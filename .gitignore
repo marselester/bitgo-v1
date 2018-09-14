@@ -2,3 +2,4 @@
 *.txt
 /coverage.out
 /utxo
+/consolidate
