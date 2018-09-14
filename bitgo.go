@@ -87,15 +87,16 @@ func (c *Client) NewRequest(ctx context.Context, method, path string, params url
 		urlStr = fmt.Sprintf("%s/api/v1/%s", c.config.baseURL, path)
 	}
 
-	jsonBody := bytes.Buffer{}
+	var b []byte
 	if body != nil {
-		err := json.NewEncoder(&jsonBody).Encode(body)
-		if err != nil {
+		var err error
+		if b, err = json.Marshal(body); err != nil {
 			return nil, err
 		}
 	}
+	debug("creating request, method: %s, url: %s, body: %s", method, urlStr, b)
 
-	req, err := http.NewRequest(method, urlStr, &jsonBody)
+	req, err := http.NewRequest(method, urlStr, bytes.NewReader(b))
 	if err != nil {
 		return nil, err
 	}
@@ -125,6 +126,7 @@ func (c *Client) Do(req *http.Request, v interface{}) (*http.Response, error) {
 	if err != nil {
 		return resp, err
 	}
+	debug("server response, status: %s, header: %s, body: %s", resp.Status, resp.Header, body)
 
 	if resp.StatusCode == http.StatusOK {
 		err = json.Unmarshal(body, v)
