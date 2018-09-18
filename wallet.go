@@ -129,6 +129,8 @@ type WalletConsolidateParams struct {
 	MinValue int64 `json:"minSize,omitempty"`
 	// Ignore unspents larger than this amount of satoshis.
 	MaxValue int64 `json:"maxSize,omitempty"`
+	// Maximum number of consolidation iterations to perform. Must be greater than or equal to 1.
+	MaxIter int `json:"maxIterationCount,omitempty"`
 	// The desired fee rate for the transaction in satoshis/kilobyte.
 	FeeRate int `json:"feeRate,omitempty"`
 }

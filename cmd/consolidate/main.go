@@ -9,7 +9,6 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
-	"time"
 
 	"github.com/marselester/bitgo-v1"
 )
@@ -26,7 +25,6 @@ func main() {
 	feeRate := flag.Int("fee-rate", 0, "The desired fee rate for the transaction in satoshis/kilobyte.")
 	minConfirms := flag.Int("min-confirms", 0, "The required number of confirmations for each transaction input.")
 	maxIter := flag.Int("max-iter", 1, "Maximum number of consolidation iterations to perform.")
-	waitIter := flag.Duration("wait-iter", time.Second, "Wait between consolidation iterations.")
 	flag.Parse()
 
 	ctx, cancel := context.WithCancel(context.Background())
@@ -52,27 +50,20 @@ func main() {
 		WalletPassphrase:  *walletPassphrase,
 		MinValue:          bitgo.ToSatoshis(*minValue),
 		MaxValue:          bitgo.ToSatoshis(*maxValue),
+		MaxIter:           *maxIter,
 		FeeRate:           *feeRate,
 	}
-	for i := 0; i < *maxIter; i++ {
-		tt, err := client.Wallet.Consolidate(ctx, *walletID, params)
-		// Print consolidated transaction ID.
-		if err == nil {
-			for _, tx := range tt {
-				fmt.Printf("%s\n", tx.TxID)
-			}
-			time.Sleep(*waitIter)
-			continue
-		}
+	tt, err := client.Wallet.Consolidate(ctx, *walletID, params)
 
-		// Stop when a context was cancelled (user hit Ctrl+C).
-		if ctx.Err() != nil {
-			break
-		}
-
+	if err != nil {
 		if apiErr, ok := err.(bitgo.Error); ok {
 			log.Fatalf("consolidate: failed to coalesce unspents, %d: %v", apiErr.HTTPStatusCode, apiErr)
 		}
 		log.Fatalf("consolidate: failed to coalesce unspents: %v", err)
+	}
+
+	// Print consolidated transaction ID.
+	for _, tx := range tt {
+		fmt.Printf("%s\n", tx.TxID)
 	}
 }
